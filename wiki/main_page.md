@@ -13,18 +13,16 @@ Hy2Opt Wiki
       <li><a href="Installation#structure">Program file structure</a></li>
       <li><a href="Installation#req">Requirements</a></li>
       <li><a href="Installation#logs">Logfiles</a></li>
-    </ul></li>
-  <li><a href="Introduction">Get started, terminology and signposts</a>
+    </ul>
+  </li>
+  <li><a href="Introduction">Introduction: Models, terminology and signposts</a>
     <ul>
-      <li><a href="Introduction#getstarted">Welcome</a>
+      <li><a href="Introduction#getstarted">Welcome</a></li>
       <li><a href="Introduction#terms">Terminology</a></li>
-      <li><a href="Introduction#inputs">Input Fils</a></li>
-    </ul></li>
-  <li>Models
-  <ul>
-  <li>Tuflow
-  <ul>	  
-  <li>The <a href="Tuflow">Tuflow</a> model</a>
+      <li><a href="Introduction#inputs">Input Files</a></li>
+    </ul>
+  </li>
+  <li><a href="Tuflow">Tuflow</a> model</a>
   <ul>
     <li><a href="Tuflow#start">Setup model</a></li>
     <li><a href="Tuflow#optimize">Model optimization</a></li>
