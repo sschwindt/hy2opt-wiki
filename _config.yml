@@ -23,7 +23,7 @@ service: "github"
 # (string) Specify branch rendered by gitpages allowing wiki tool buttons to work
 git_branch: "master"
 # (string) Url of logo image, it can be full, absolute or relative.
-logo_url: https://github.com/sschwindt/hy2opt-wiki/blob/master/assets/images/welcome.png
+logo_url: https://raw.githubusercontent.com/sschwindt/hy2opt-wiki/master/assets/images/welcome.png
 # (string) The UA-XXXXX-Y code from google analytic to enable GA on your wiki
 google_analytics: 
 # (string) folder where wiki pages are stored, it's needed for tool buttons
