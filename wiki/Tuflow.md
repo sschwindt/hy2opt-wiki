@@ -10,16 +10,27 @@ Tuflow
 
 ***
 
+## Requirements
+A *Tuflow* model needs at least the following:
+
+1. A topography (DEM) raster;
+1. Knowledge about the riverbed substrate (at best: a grain size raster); and
+1. A stage-discharge (h-Q) relationship at the downstream model end.
+
+We strongly recommend to validate the results of the *Tuflow* model, for instance with in-situ measurements of flow depth and velocity (read more for example in [Barker *et al.* 2018][barker18]).
+
 ## Get Started<a name="start"></a>
 
 *Hy2Opt*'s tabs invites the user for the creation of a model.
 
-![tfgui](https://github.com/sschwindt/hy2opt/raw/master/assets/images/tuflow_start.png)
+![tfgui](https://raw.githubusercontent.com/sschwindt/hy2opt-wiki/master/assets/images/tuflow_start.png)
 
 ## Model creation<a name="mc"></a>
 
-The *Create Model* window guides in X steps through the creation of a template for generating  a *Tuflow*  model.
+The *Create Model Wizard* guides in X steps through the creation of a template for generating  a *Tuflow*  model. Before starting the wizard, a couple of input files need to be prepared, which require individual decisions. *Hy2Opt* provides templates and examples in the *templates4users/Tuflow* folder, which may be used in the file preparation described in the sections below.
 
+## Preparation
+***
 ### Prepare geodata<a name="pgd"></a>
 The model creation wizard will inquire the location of geospatial data files that should be prepared before starting the wizard. **Make sure to use the same coordinate system, projection, and units consistently in all geospatial data files.**
 
@@ -27,16 +38,16 @@ The following GRID (raster datasets) files will be required:
 
 - Topography (DEM) raster in [`ASC`](https://wiki.tuflow.com/index.php?title=QGIS_Export_Raster_to_asc) or `FLT` formats
 
-The following (vector) shapefiles (`.SHP`) are required ([read drawing instructions](https://docs.qgis.org/2.8/en/docs/training_manual/create_vector_data/create_new_vector.html) and see figure below):
+The following (vector) shapefiles (`.SHP`) are required ([read drawing instructions](https://docs.qgis.org/2.8/en/docs/training_manual/create_vector_data/create_new_vector.html) and see figure below) and templates can be found in ***templates4users/Tuflow/***:
 
-- `2d_code_NAME_R.shp`: A polygon shapefile that indicates the initial expected wetted area (within one or more polygons). Add a `Code` field and draw active (wetted) polygons that may be oriented at aerial imagery. Assign the active polygon(s)  a `Code`-value of 1.
-- `d_loc_NAME_L.shp`: A line shapefile defining the location where Tuflow will create the model boundary.
-- `2d_bc_NAME_HT_L.shp`: A line shapefile  defining the downstream flow exit line (`L`) that will be defined with a water surface elevation (`H`) over time (`T`).   
-- `2d_sa_NAME_QT_R.shp`: A polygon shapefile defining the *Source Area* (`sa`) in terms of a polygon that delineates the upstream inflow region (`R`), where a discharge (`Q`) will be defined over time (`T`). Use a polygon rather than a line to enable the GPU solver (cannot run with a line).
-- `2d_po_NAME_L.shp`: A line shapefile containg monitoring cross section lines for tracking discharge (or any other [data type](#modt)) through time within the model domain. 
-- `2d_po_NAME P.shp`: A point shapefile containg monitoring points where velocity (or any other [data type](#modt)) can be tracked through time within the model domain. 
-- `2d_mat_NAME_R.shp`: A polygon shapefile defining materials that characterize, for example, terrain roughness. The shapefile must have a field named `Materials` (`Int` type), where polygons get assigned materials defined in a `csv` table. This `csv` file defines the channel roughness (as a function of [Manning's *n*](https://en.wikipedia.org/wiki/Manning_formula#Manning_coefficient_of_roughness)), soil infiltration (see Section 6.10 of the [*Tuflow* manual][tfman]), and land use hazard (see Section 6.9 of the [*Tuflow* manual][tfman]) in the following table shape:
-
+- `2d_code_NAME_R.shp`: A **polygon** shapefile that indicates the initial expected wetted area (within one or more polygons). Add a `Code` field and draw active (wetted) polygons that may be oriented at aerial imagery. Assign the active polygon(s)  a `Code`-value of 1.
+- `2d_loc_NAME_L.shp`: A poly**line** shapefile defining the location where Tuflow will create the model boundary. Draw a line from downstream to upstream (against flow) direction. No modification of the *Attribute Table* is required.
+- `2d_bc_NAME_HT_L.shp`: A poly**line** shapefile  defining the downstream flow exit line (`L`) that will be defined with a water surface elevation (`H`) over time (`T`). The outflow line should include the expected left and right banks, and may include dry zones, too (better too long than too short). Define 3 text-fields called `Type`, `Flags`, and `Name`; define 5 double-numeric-fields called `f`, `d`, `td`, `a`, and `b`. The `Name` textfield requires the name of the outlet (the other text-fields may be left empty). The numeric-fields can all be set to 0.
+- `2d_sa_NAME_QT_R.shp`: A **polygon** shapefile defining the *Source Area* (`sa`) in terms of a polygon that delineates the upstream inflow region (`R`), where a discharge (`Q`) will be defined over time (`T`). Use a polygon rather than a line to enable the GPU solver (cannot run with a line). Define a text-field named `Name` to assign every polygon a (source area) name. The here defined source area polygon's names will be used in the [definition of inflow boundary conditions](#pbc).
+- `2d_po_NAME_L.shp`: A poly**line** shapefile containg monitoring cross section lines for tracking discharge (or any other [data type](#modt)) through time within the model domain. Define three text-fields named `Type`, `Label`, and `Comment`. The `Type` field marks the variable to output (e.g., `Q_` for discharge). The `Label` will be used in output tables to label the output data (**must be defined**). `Q_`-type lines close the upstream and downstream boundary will provide model consistency evaluations (i.e., indicate at what simulation time the model converges). However, the more lines are drawn here, the slower will be the calculation. Note that the sense of line orientation will affect the sign of output variables (negative or positive).
+- `2d_po_NAME_P.shp`: A **point** shapefile containg monitoring points where velocity (or any other [data type](#modt)) can be tracked through time within the model domain. Define three text-fields named `Type`, `Label`, and `Comment`. The `Type` field marks the variable to output (e.g., `V_` for velocity). The `Label` will be used in output tables to label the output data (**must be defined**). `V_`-type points close the upstream and downstream boundary will provide model consistency evaluations (i.e., indicate at what simulation time the model converges). As for the po-line file, limit the number of points to avoid slowing down the calculation.
+- `2d_mat_NAME_R.shp`: A **polygon** shapefile defining materials that characterize, for example, terrain roughness. The shapefile must have a field named `Materials` (long-numeric type), where polygons get assigned materials defined in a `csv` table. This `csv` file defines the channel roughness (as a function of [Manning's *n*](https://en.wikipedia.org/wiki/Manning_formula#Manning_coefficient_of_roughness)), soil infiltration (see Section 6.10 of the [*Tuflow* manual][tfman]), and land use hazard (see Section 6.9 of the [*Tuflow* manual][tfman]) in the following table shape:
+<a name="mat"></a>
 | Material ID | Manning's n | Infiltration Parameters | Land Use Hazard ID | ! Description  |
 |-------------|-------------|-------------------------|--------------------|----------------|
 | 1           | 0.04        |                         |                    | ! Main channel   |
@@ -45,6 +56,34 @@ The following (vector) shapefiles (`.SHP`) are required ([read drawing instructi
 
 ![shp_illu](https://raw.githubusercontent.com/sschwindt/hy2opt-wiki/master/assets/images/illustrate_shapefiles.png)
 
+
+### Prepare boundaries<a name="pbc"></a>
+The model must not only know where the water comes from (see polygon names defined in [`2d_sa_NAME_QT_R.shp`](#pgd)), but also when and how much water flows. In addition, a boundary condition is necessary, which can be specified here using a stage-discharge (h-Q) relationship. Follow the steps below to define boundary conditions.
+
+1. Rename the file `Hy2Opt/templates4users/bc_data_EVENT.csv` by changing *EVENT* to a flow event. For example, `bc_data_37.csv` for defining a 37-m³/s (or cfs) discharge event; or `bc_data_HQ10.csv` for defining a ten-year event.
+
+1. Open the renamed `bc_data_EVENT.csv` file in a [spreadsheet editor][libreoffice] and:
+	- Add at least 3 `Time` rows (e.g., 0.0, 1.0, and 1000.0)
+    - For every polygon name defined in [`2d_sa_NAME_QT_R.shp`](#pgd), add one inflow (=source) (or outflow=sink) column. All polygons in [`2d_sa_NAME_QT_R.shp`](#pgd) must be listed here. At least one polygon must be defined. For example, if only one inflow polygon was defined, only rename the `INFLOW1` column (delete the `...` column).
+    - Set a flow value for every `INFLOW` column in m³/s (or cfs) for every time row defined in the `Time` column (`float` or `int` value per cell). Note:
+    	+ A negative value denotes a sink (outflow).
+        + A steady-discharge simulation corresponds to defining the same discharge within one column for all `Time` rows.
+    - Define a downstream stage (i.e., water surface elevation in absolute height such as meters above sea level) at the flow exit line(s) define in the `Name` text-field in `2d_bc_NAME_HT_L.shp`. 
+    - Save and close `bc_data_EVENT.csv`.
+    
+1. OPTIONAL: To define more events, copy the `bc_data_EVENT.csv` file and repeat the last step.
+
+1. Rename the file `Hy2Opt/user_templates/MODEL_bc_data.csv` according to the *MODEL* to create (e.g., `Hy2Opt/user_examples/Example_bc_data.csv`).
+
+1. Open the renamed `MODEL_bc_data.csv` file in a [spreadsheet editor][libreoffice] and:
+	- `Name` column (`A`): Copy all column names except "Time" from the just created, renamed `bc_data_EVENT.csv` and paste them transposed as row names starting in cell A2 in the renamed `MODEL_bc_data.csv`.
+    - `Source` column (`B`): copy (pull down) `bc_data___event__.csv` to all rows defined in column `A`.
+    - `Column 1` column (`C`): copy (pull down) `Time` to all rows defined in column `A`.
+    - `Column 2` column (`D`): copy all elements defined in column `A` (except the column header; i.e., do not change the string `Column 2`).
+    - Save and close `MODEL_bc_data.csv`.
+    
+
+## Running the Model setup Wizard
 ### Model control parameters<a name="mcp"></a>
 
 The first step inquires input for model controls, which will be written to *runs/init/`MODEL_NAME.tcf`*. It asks for the following parameters, where drop-down menus provide valid *Tuflow* options (where applicable):
@@ -152,6 +191,8 @@ The following table is taken from the [Tuflow Manual][tfman] (Section 9.7).
 | V    | Vector Velocity              | All formats                     | Flow velocity.  The resulting velocity vector is calculated from the surrounding u and v-points. Note:  The maximum and minimum velocities are tracked over time.  By default the maximum velocities are tracked over 0.1m depth, below this depth the velocity at maximum water level is used.  See the Maximum Velocity Cutoff Depth command for more information.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | ZH   | Bathymetry                   | All formats excluding WaterRIDE | Elevations at the cell corners (ZH points).  This information is already contained in the .2dm file, however, this option is useful if the model’s bathymetry varies over time because of variable geometry (2d_vzsh or VG boundaries) or for morphological modelling.  This output is very useful if you are comparing two or more runs that have different topography (e.g. before and after scenarios), and you wish to easily view or compare the topography for each scenario within SMS or post-process using TUFLOW_to_GIS (refer to Section 15.2.1). If the topography in the model does not change over time (i.e. no variable Z shapes or morphological changes), for the default .xmdf output format the ZH Zpt values are output once, rather than every timestep, thereby not consuming disk space unnecessarily.   The ZH map output will appear under a XMDF folder “Fixed”.   This feature is only available if using the XMDF format, for other output formats, the bathymetry will be output at each output interval. For builds 2016-03-AC onwards, this output is available for TUFLOW GPU.  Builds prior to 2016-03-AC had this output disabled for GPU simulations. No maximum and minimum output is available at this stage. |
 
+[barker18]: http://dx.doi.org/10.1002/rra.3238
 [cfl]: https://en.wikipedia.org/wiki/Courant%E2%80%93Friedrichs%E2%80%93Lewy_condition
+[libreoffice]: https://www.libreoffice.org/
 [smag]: https://en.wikipedia.org/wiki/Large_eddy_simulation#Smagorinsky%E2%80%93Lilly_model
 [tfman]: https://www.tuflow.com/Download/TUFLOW/Releases/2018-03/TUFLOW%20Manual.2018-03.pdf
