@@ -125,16 +125,16 @@ After editing the batch files, launch *Hy2Opt* by double-clicking on `Start_Hy2O
 ***
 
 ### Python packages
-The execution of *Hy2Opt* requires the following packages, which are part of the standard *ArcGIS Pro* - *Python3* distribution: 
+The execution of *Hy2Opt* requires the following packages: 
 - `glob`
 - `logging`
-- `openpyxl`
 - `os`
+- `osgeo`
 - `shutil`
 - `subprocess` (not mandatory, also works without this package)
 - `tkinter`
 
-Any folder beginning with a "." for example `.cache` or `.idea` must not be modified or assessed by any other program, in particular during the execution of package methods. At the end of execution, the applied modules have created their output folders, which are indicated in the command prompt.
+Any folder beginning with a "." for example `.cache` must not be modified or assessed by any other program, in particular during the execution of package methods. At the end of execution, the applied modules have created their output folders, which are indicated in the command prompt.
 
 ### Other software and dependencies
 ***
