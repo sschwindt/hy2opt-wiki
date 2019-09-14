@@ -25,7 +25,7 @@ We strongly recommend to validate the results of the *Tuflow* model, for instanc
 
 ![tfgui](https://raw.githubusercontent.com/sschwindt/hy2opt-wiki/master/assets/images/tuflow_start.png)
 
-## Model creation<a name="mc"></a>
+
 
 The *Create Model Wizard* guides in X steps through the creation of a template for generating  a *Tuflow*  model. Before starting the wizard, a couple of input files need to be prepared, which require individual decisions. *Hy2Opt* provides templates and examples in the *templates4users/Tuflow* folder, which may be used in the file preparation described in the sections below.
 
@@ -47,7 +47,9 @@ The following (vector) shapefiles (`.SHP`) are required ([read drawing instructi
 - `2d_po_NAME_L.shp`: A poly**line** shapefile containg monitoring cross section lines for tracking discharge (or any other [data type](#modt)) through time within the model domain. Define three text-fields named `Type`, `Label`, and `Comment`. The `Type` field marks the variable to output (e.g., `Q_` for discharge). The `Label` will be used in output tables to label the output data (**must be defined**). `Q_`-type lines close the upstream and downstream boundary will provide model consistency evaluations (i.e., indicate at what simulation time the model converges). However, the more lines are drawn here, the slower will be the calculation. Note that the sense of line orientation will affect the sign of output variables (negative or positive).
 - `2d_po_NAME_P.shp`: A **point** shapefile containg monitoring points where velocity (or any other [data type](#modt)) can be tracked through time within the model domain. Define three text-fields named `Type`, `Label`, and `Comment`. The `Type` field marks the variable to output (e.g., `V_` for velocity). The `Label` will be used in output tables to label the output data (**must be defined**). `V_`-type points close the upstream and downstream boundary will provide model consistency evaluations (i.e., indicate at what simulation time the model converges). As for the po-line file, limit the number of points to avoid slowing down the calculation.
 - `2d_mat_NAME_R.shp`: A **polygon** shapefile defining materials that characterize, for example, terrain roughness. The shapefile must have a field named `Materials` (long-numeric type), where polygons get assigned materials defined in a `csv` table. This `csv` file defines the channel roughness (as a function of [Manning's *n*](https://en.wikipedia.org/wiki/Manning_formula#Manning_coefficient_of_roughness)), soil infiltration (see Section 6.10 of the [*Tuflow* manual][tfman]), and land use hazard (see Section 6.9 of the [*Tuflow* manual][tfman]) in the following table shape:
+
 <a name="mat"></a>
+
 | Material ID | Manning's n | Infiltration Parameters | Land Use Hazard ID | ! Description  |
 |-------------|-------------|-------------------------|--------------------|----------------|
 | 1           | 0.04        |                         |                    | ! Main channel   |
@@ -82,8 +84,8 @@ The model must not only know where the water comes from (see polygon names defin
     - `Column 2` column (`D`): copy all elements defined in column `A` (except the column header; i.e., do not change the string `Column 2`).
     - Save and close `MODEL_bc_data.csv`.
     
-
-## Running the Model setup Wizard
+## Model Setup Wizard<a name="mcw"></a>
+***
 ### Model control parameters<a name="mcp"></a>
 
 The first step inquires input for model controls, which will be written to *runs/init/`MODEL_NAME.tcf`*. It asks for the following parameters, where drop-down menus provide valid *Tuflow* options (where applicable):
@@ -136,10 +138,11 @@ The following geometry parameters will be written to the *model/`MODEL_NAME.tbc`
 | `Read GIS BC` | `model\gis\2d_bc_MODEL_HT_L.shp` | *Shapefile (`shp`)* defining the downstream flow exit line (`L`) that will be defined with a water surface elevation (`H`) over time (`T`).                                                                                                                                |
 | `Read GIS SA` | `model\gis\2d_sa_MODEL_QT_R.shp` | *Shapefile (`shp`)* defining the *Source Area* (`sa`) in terms of a polygon that delineates the upstream inflow region (`R`), where a discharge (`Q`) will be defined over time (`T`). Use a polygon rather than a line to enable the GPU solver (cannot run with a line). |
 
-| <sup>\*</sup>`PAR` |                    |
-| `PARR` |                    |
 
 Note that *Hy2Opt* writes the `Cell Size` parameter in the [`.tcf`](#mcp) file.
+
+
+### Boundary conditions and Events<a name="bce"></a>
 
 ***
 
