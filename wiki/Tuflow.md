@@ -11,11 +11,12 @@ Tuflow
 ***
 
 ## Requirements
+
 A *Tuflow* model needs at least the following:
 
 1. A topography (DEM) raster;
-1. Knowledge about the riverbed substrate (at best: a grain size raster); and
-1. A stage-discharge (h-Q) relationship at the downstream model end.
+2. Knowledge about the riverbed substrate (at best: a grain size raster); and
+3. A stage-discharge (h-Q) relationship at the downstream model end.
 
 We strongly recommend to validate the results of the *Tuflow* model, for instance with in-situ measurements of flow depth and velocity (read more for example in [Barker *et al.* 2018][barker18]).
 
@@ -25,13 +26,14 @@ We strongly recommend to validate the results of the *Tuflow* model, for instanc
 
 ![tfgui](https://raw.githubusercontent.com/sschwindt/hy2opt-wiki/master/assets/images/tuflow_start.png)
 
-
-
 The *Create Model Wizard* guides in X steps through the creation of a template for generating  a *Tuflow*  model. Before starting the wizard, a couple of input files need to be prepared, which require individual decisions. *Hy2Opt* provides templates and examples in the *templates4users/Tuflow* folder, which may be used in the file preparation described in the sections below.
 
 ## Preparation
+
 ***
+
 ### Prepare geodata<a name="pgd"></a>
+
 The model creation wizard will inquire the location of geospatial data files that should be prepared before starting the wizard. **Make sure to use the same coordinate system, projection, and units consistently in all geospatial data files.**
 
 The following GRID (raster datasets) files will be required:
@@ -50,42 +52,46 @@ The following (vector) shapefiles (`.SHP`) are required ([read drawing instructi
 
 <a name="mat"></a>
 
-| Material ID | Manning's n | Infiltration Parameters | Land Use Hazard ID | ! Description  |
-|-------------|-------------|-------------------------|--------------------|----------------|
-| 1           | 0.04        |                         |                    | ! Main channel   |
-| 2           | 0.02        |                         |                    | ! Banks   |
-| ...           | ...        |                         |                    | ! Comments describing material |
+| Material ID | Manning's n | Infiltration Parameters | Land Use Hazard ID | ! Description                  |
+| ----------- | ----------- | ----------------------- | ------------------ | ------------------------------ |
+| 1           | 0.04        |                         |                    | ! Main channel                 |
+| 2           | 0.02        |                         |                    | ! Banks                        |
+| ...         | ...         |                         |                    | ! Comments describing material |
 
 ![shp_illu](https://raw.githubusercontent.com/sschwindt/hy2opt-wiki/master/assets/images/illustrate_shapefiles.png)
 
-
 ### Prepare boundaries<a name="pbc"></a>
+
 The model must not only know where the water comes from (see polygon names defined in [`2d_sa_NAME_QT_R.shp`](#pgd)), but also when and how much water flows. In addition, a boundary condition is necessary, which can be specified here using a stage-discharge (h-Q) relationship. Follow the steps below to define boundary conditions.
 
 1. Rename the file `Hy2Opt/templates4users/bc_data_EVENT.csv` by changing *EVENT* to a flow event. For example, `bc_data_37.csv` for defining a 37-m³/s (or cfs) discharge event; or `bc_data_HQ10.csv` for defining a ten-year event.
 
-1. Open the renamed `bc_data_EVENT.csv` file in a [spreadsheet editor][libreoffice] and:
-	- Add at least 3 `Time` rows (e.g., 0.0, 1.0, and 1000.0)
-    - For every polygon name defined in [`2d_sa_NAME_QT_R.shp`](#pgd), add one inflow (=source) (or outflow=sink) column. All polygons in [`2d_sa_NAME_QT_R.shp`](#pgd) must be listed here. At least one polygon must be defined. For example, if only one inflow polygon was defined, only rename the `INFLOW1` column (delete the `...` column).
-    - Set a flow value for every `INFLOW` column in m³/s (or cfs) for every time row defined in the `Time` column (`float` or `int` value per cell). Note:
-    	+ A negative value denotes a sink (outflow).
-        + A steady-discharge simulation corresponds to defining the same discharge within one column for all `Time` rows.
-    - Define a downstream stage (i.e., water surface elevation in absolute height such as meters above sea level) at the flow exit line(s) define in the `Name` text-field in `2d_bc_NAME_HT_L.shp`. 
-    - Save and close `bc_data_EVENT.csv`.
-    
-1. OPTIONAL: To define more events, copy the `bc_data_EVENT.csv` file and repeat the last step.
+2. Open the renamed `bc_data_EVENT.csv` file in a [spreadsheet editor][libreoffice] and:
+   
+   - Add at least 3 `Time` rows (e.g., 0.0, 1.0, and 1000.0)
+   - For every polygon name defined in [`2d_sa_NAME_QT_R.shp`](#pgd), add one inflow (=source) (or outflow=sink) column. All polygons in [`2d_sa_NAME_QT_R.shp`](#pgd) must be listed here. At least one polygon must be defined. For example, if only one inflow polygon was defined, only rename the `INFLOW1` column (delete the `...` column).
+   - Set a flow value for every `INFLOW` column in m³/s (or cfs) for every time row defined in the `Time` column (`float` or `int` value per cell). Note:
+     + A negative value denotes a sink (outflow).
+     + A steady-discharge simulation corresponds to defining the same discharge within one column for all `Time` rows.
+   - Define a downstream stage (i.e., water surface elevation in absolute height such as meters above sea level) at the flow exit line(s) define in the `Name` text-field in `2d_bc_NAME_HT_L.shp`. 
+   - Save and close `bc_data_EVENT.csv`.
 
-1. Rename the file `Hy2Opt/user_templates/MODEL_bc_data.csv` according to the *MODEL* to create (e.g., `Hy2Opt/user_examples/Example_bc_data.csv`).
+3. OPTIONAL: To define more events, copy the `bc_data_EVENT.csv` file and repeat the last step.
 
-1. Open the renamed `MODEL_bc_data.csv` file in a [spreadsheet editor][libreoffice] and:
-	- `Name` column (`A`): Copy all column names except "Time" from the just created, renamed `bc_data_EVENT.csv` and paste them transposed as row names starting in cell A2 in the renamed `MODEL_bc_data.csv`.
-    - `Source` column (`B`): copy (pull down) `bc_data___event__.csv` to all rows defined in column `A`.
-    - `Column 1` column (`C`): copy (pull down) `Time` to all rows defined in column `A`.
-    - `Column 2` column (`D`): copy all elements defined in column `A` (except the column header; i.e., do not change the string `Column 2`).
-    - Save and close `MODEL_bc_data.csv`.
-    
+4. Rename the file `Hy2Opt/user_templates/MODEL_bc_data.csv` according to the *MODEL* to create (e.g., `Hy2Opt/user_examples/Example_bc_data.csv`).
+
+5. Open the renamed `MODEL_bc_data.csv` file in a [spreadsheet editor][libreoffice] and:
+   
+   - `Name` column (`A`): Copy all column names except "Time" from the just created, renamed `bc_data_EVENT.csv` and paste them transposed as row names starting in cell A2 in the renamed `MODEL_bc_data.csv`.
+   - `Source` column (`B`): copy (pull down) `bc_data___event__.csv` to all rows defined in column `A`.
+   - `Column 1` column (`C`): copy (pull down) `Time` to all rows defined in column `A`.
+   - `Column 2` column (`D`): copy all elements defined in column `A` (except the column header; i.e., do not change the string `Column 2`).
+   - Save and close `MODEL_bc_data.csv`.
+
 ## Model Setup Wizard<a name="mcw"></a>
+
 ***
+
 ### Model control parameters<a name="mcp"></a>
 
 The first step inquires input for model controls, which will be written to *runs/init/`MODEL_NAME.tcf`*. It asks for the following parameters, where drop-down menus provide valid *Tuflow* options (where applicable):
@@ -98,7 +104,7 @@ The first step inquires input for model controls, which will be written to *runs
 | `Units`                        | Select a unit system (must comply with the units of the later on required topography / DEM raster).                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | <sup>\*</sup>`Hardware`        | If your computer has a **powerfull** GPU, this can increase the computing speed many times over. Otherwise (non or non-powerfull GPU), select `CPU`.                                                                                                                                                                                                                                                                                                                                                                           |
 | `Viscosity Formulation`        | Preferably use `SMAGORINSKY`. Use `CONSTANT` only when the cell size is much larger than the (expected) flow depth or when other turbulence sources govern (e.g., bed roughness).                                                                                                                                                                                                                                                                                                                                              |
-| `Viscosity Coefficients`       | *C<sub>s</sub>* is the dimensionless [*Smagorinsky* coefficient][smag] and has a default value of 0.5. *C<sub>c</sub>* is the constant *Smagorinsky* coefficient and has a default value of 0.05 m²/s (US costomary: use 0.5382 ft²/s). Lower values tend to increase stability, higher values increase calculation speed.  If `Viscosity Formulation`==`CONSTANT` is used, *Hy2Opt* automatically uses the first `Viscosity Coefficient` only, but then in units of m²/s (or ft²/s), where the recommended value is 1.0 m²/s. |
+| `Viscosity Coefficients`       | *C<sub>s</sub>* is the dimensionless [*Smagorinsky* coefficient][smag] and has a default value of 0.5. *C<sub>c</sub>* is the constant *Smagorinsky* coefficient and has a default value of 0.05 m²/s (US costomary: use 0.5382 ft²/s). Lower values tend to increase stability, higher values increase calculation speed.  If `Viscosity Formulation`==`CONSTANT` is used, *Hy2Opt* automatically uses the `Constant Viscosity Coefficient` only, where the recommended value is 1.0 m²/s. |
 | `Cell Size`                    | Min. the resolution of the input DEM raster. Coarse resolution results in higher calculation speed an less accuracy. The default is 1.0m.                                                                                                                                                                                                                                                                                                                                                                                      |
 | `Timestep`                     | The timestep (in seconds) depends on the cell size and should be max. 1/2 to 1/5 of the cell size in meters. The timestep must be small enough to satisfy the [Courant-Friedrichs-Lewy condition][cfl] for numerical stability. The `HPC` solutions scheme uses adaptive timesteps and the here defined value only repreents the initital condition. *Hy2Opt* comes with a calculator (`Estimate` button) for estimating the adequate timestep.                                                                                |
 | `Cell Wet/Dry Depth`           | Default: 0.002m. Define according to estimated flood magnitude depth. Should be smaller for direct rainfall approaches (shallow sheet flow).                                                                                                                                                                                                                                                                                                                                                                                   |
@@ -123,11 +129,11 @@ The next step inquires geometry and geographic parameters, as well as geofiles, 
 | Parameter           | Default                              | Description                                                                                                                                                                                                                                           |
 | ------------------- | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Read GIS Location` | `model\grid\2d_loc_MODEL_L.shp`      | *Shapefile (`shp`)* defining the location where *Tuflow* creates the boundary.                                                                                                                                                                        |
-| `Grid Size`         | `(X,Y)` - `tuple`                    | Dimensions of the grid (`X`-rows and `Y`-columns in m or ft); must not be an exact multiple of `Cell Size`. *Hy2Opt* provides a built-in function for calculating the grid size from the extents of the `Read GIS Location` layer. |
+| `Grid Size`         | `(X,Y)` - `tuple`                    | Dimensions of the grid (`X`-rows and `Y`-columns in m or ft); must not be an exact multiple of `Cell Size`. *Hy2Opt* provides a built-in function for calculating the grid size from the extents of the `Read GIS Location` layer.                    |
 | `Set Zpts`          | `3000` (`Int` in m)                  | Default definition of *Zpts* (Section 6.2 in the [*Tuflow* manual][tfman]). The relevant points are overwritten with the next parameter (`Read GRID Zpts`). A high value ensures that gaps in the `asc` or `flt` DEM raster can easily be identified. |
 | `Read GRID Zpts`    | `model\grid\asc` or `flt` DEM raster | The preferred method to define Z-point elevations in *Hy2Opt* (alternatives: `Read GRID <option>` as defined in the [*Tuflow* manual][tfman] in Appendix C).                                                                                          |
 | `Set Code`          | `0` (`Int` as Boolean)               | Defines that the DEM is trimmed to the model boundary. Note: `Set Code` must be defined after `Read GRID Zpts`.                                                                                                                                       |
-| `Read GIS Code`     | `model\gis\2d_code_MODEL_R.shp`      | Select a polygon shapefile that indicates the initial expected wetted area within a polygon. Active (wetted) polygons must have a code-value=1 and may be oriented at aerial imagery.                                                                      |
+| `Read GIS Code`     | `model\gis\2d_code_MODEL_R.shp`      | Select a polygon shapefile that indicates the initial expected wetted area within a polygon. Active (wetted) polygons must have a code-value=1 and may be oriented at aerial imagery.                                                                 |
 | `Set Mat`           | `1` (`Int` of default material)      | Define the default material ID for all cells that are not defined in the materials polygon (see `Read GIS Mat`).                                                                                                                                      |
 | `Read GIS Mat`      | `model\gis\2d_mat_MODEL_R.shp`       | Polygon shapefile defining material IDs. Parameter can be ignored for using the default material (see `Set Mat`) everywhere.                                                                                                                          |
 
@@ -138,9 +144,7 @@ The following geometry parameters will be written to the *model/`MODEL_NAME.tbc`
 | `Read GIS BC` | `model\gis\2d_bc_MODEL_HT_L.shp` | *Shapefile (`shp`)* defining the downstream flow exit line (`L`) that will be defined with a water surface elevation (`H`) over time (`T`).                                                                                                                                |
 | `Read GIS SA` | `model\gis\2d_sa_MODEL_QT_R.shp` | *Shapefile (`shp`)* defining the *Source Area* (`sa`) in terms of a polygon that delineates the upstream inflow region (`R`), where a discharge (`Q`) will be defined over time (`T`). Use a polygon rather than a line to enable the GPU solver (cannot run with a line). |
 
-
 Note that *Hy2Opt* writes the `Cell Size` parameter in the [`.tcf`](#mcp) file.
-
 
 ### Boundary conditions and Events<a name="bce"></a>
 
