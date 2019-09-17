@@ -3,9 +3,12 @@ Tuflow
 
 ***
 
-- [Model setup](#start)
-- [Model optimization](#optimize)
-- [Run models](#run)
+- [Model Introduction](#start)
+- [Requirements](#Requirements)
+- [Model preparation](#start)
+- [Model Setup Wizard](#msw)
+- [Model optimization](#optimization)
+- [Streamline Tuflow models](#run)
 - [Output](#output)
 
 ***
@@ -88,9 +91,11 @@ The model must not only know where the water comes from (see polygon names defin
    - `Column 2` column (`D`): copy all elements defined in column `A` (except the column header; i.e., do not change the string `Column 2`).
    - Save and close `MODEL_bc_data.csv`.
 
-## Model Setup Wizard<a name="mcw"></a>
+## Model Setup Wizard<a name="msw"></a>
 
 ***
+![tfmsw](https://raw.githubusercontent.com/sschwindt/hy2opt-wiki/master/assets/images/tuflow_start.png)
+
 
 ### Model control parameters<a name="mcp"></a>
 
