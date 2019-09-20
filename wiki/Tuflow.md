@@ -1,25 +1,40 @@
-Tuflow
-=====
+Tuflow<a name="hi"></a>
+======
 
 ***
-
-- [Model Introduction](#start)
+- [Usage](#Usage)
 - [Requirements](#Requirements)
-- [Model preparation](#start)
+- [Get started](#start)
+- [Model preparation](#pgd)
 - [Model Setup Wizard](#msw)
 - [Model optimization](#optimization)
-- [Streamline Tuflow models](#run)
+- [Streamline *Tuflow* models](#run)
 - [Output](#output)
 
 ***
+
+The commercial *Tuflow* code performs 2D hydrodynamic simulations either with an [implicit ("Classic")](http://tuflow.com/Solvers.aspx) or an [explicit HPC (Heavily Parallelised Compute)](http://tuflow.com/Solvers.aspx?TUFLOWHPC) solver. The HPC solver features CPU and highly efficient GPU compatibility. A [demo license](https://wiki.tuflow.com/index.php?title=New_User_Guide_Free_Demo_Version)  with limited capacities is available to test and train users on *Tuflow*.
+*Hy2Opt*'s *Tuflow* tab provides routines to create, optimize and run [*Tuflow*](http://tuflow.com/) models.
+
+## Usage
+
+1. Prepare geospatial data ([instructions](#pgd))
+1. Prepare boundary conditions ([instructions](#pbc))
+1. Launch the [Model Setup Wizard](#msw) to create a model
+1. Run the *Tuflow* model pre-processor for model optimization (OPTIONAL)
+1. Select model and run *Tuflow*
+
 
 ## Requirements
 
 A *Tuflow* model needs at least the following:
 
+1. A licensed (demo/full) [installation of *Tuflow*](http://tuflow.com/Downloads.aspx);
+1. GIS software (e.g., [QGIS](https://qgis.org/en/site/));
+1. Workbook editor (e.g., [Libre Office](https://www.libreoffice.org/));
 1. A topography (DEM) raster;
-2. Knowledge about the riverbed substrate (at best: a grain size raster); and
-3. A stage-discharge (h-Q) relationship at the downstream model end.
+1. Knowledge about the riverbed substrate (at best: a grain size raster); and
+1. A stage-discharge (h-Q) relationship at the downstream model end.
 
 We strongly recommend to validate the results of the *Tuflow* model, for instance with in-situ measurements of flow depth and velocity (read more for example in [Barker *et al.* 2018][barker18]).
 
@@ -38,12 +53,15 @@ The [*Model Setup Wizard*](#msw) guides in X steps through the creation of a tem
 ### Prepare geodata<a name="pgd"></a>
 
 The model creation wizard will inquire the location of geospatial data files that should be prepared before starting the wizard. **Make sure to use the same coordinate system, projection, and units consistently in all geospatial data files.**
+Recommendation: Prepare all geospatial files in an external folder with the same name as the model.
 
 The following GRID (raster datasets) files will be required:
 
 - Topography (DEM) raster in [`ASC`](https://wiki.tuflow.com/index.php?title=QGIS_Export_Raster_to_asc) or `FLT` formats
 
-The following (vector) shapefiles (`.SHP`) are required ([read drawing instructions](https://docs.qgis.org/2.8/en/docs/training_manual/create_vector_data/create_new_vector.html) and see figure below) and templates can be found in ***templates4users/Tuflow/***:
+The following (vector) shapefiles (`.SHP`) are required ([read drawing instructions](https://docs.qgis.org/2.8/en/docs/training_manual/create_vector_data/create_new_vector.html) and see figure below) and templates can be found in ***templates4users/Tuflow/***.
+
+![shp_illu](https://raw.githubusercontent.com/sschwindt/hy2opt-wiki/master/assets/images/illustrate_shapefiles.png)
 
 - `2d_code_NAME_R.shp`: A **polygon** shapefile that indicates the initial expected wetted area (within one or more polygons). Add a `Code` field and draw active (wetted) polygons that may be oriented at aerial imagery. Assign the active polygon(s)  a `Code`-value of 1.
 - `2d_loc_NAME_L.shp`: A poly**line** shapefile defining the location where Tuflow will create the model boundary. Draw a line from downstream to upstream (against flow) direction. No modification of the *Attribute Table* is required.
@@ -61,7 +79,8 @@ The following (vector) shapefiles (`.SHP`) are required ([read drawing instructi
 | 2           | 0.02        |                         |                    | ! Banks                        |
 | ...         | ...         |                         |                    | ! Comments describing material |
 
-![shp_illu](https://raw.githubusercontent.com/sschwindt/hy2opt-wiki/master/assets/images/illustrate_shapefiles.png)
+The materials `csv` file can be created later on with *Hy2Opt*'s [Model Setup Wizard](#msw). Note: Following the recommendations in the [*Tuflow* manual][tfman](sec. 6.9.3), *Hy2Opt* uses the `csv` format rather than the `tmf` format for defining materials. Alternatively, *Tuflow* provides workbook utilities (macros) on their [website](https://www.tuflow.com/Tuflow%20Utilities.aspx) ([direct download link](https://www.tuflow.com/Download/Miscellaneous/Excel_Macros.zip)).
+
 
 ### Prepare boundaries<a name="pbc"></a>
 
@@ -95,25 +114,35 @@ The model must not only know where the water comes from (see polygon names defin
 
 ***
 
+The first tab invites for defining a model name and model control parameters. Note: **This is the only place where model names can be defined.**
+
 ![tfmsw](https://raw.githubusercontent.com/sschwindt/hy2opt-wiki/master/assets/images/msw.png)
 
 ### Model control parameters<a name="mcp"></a>
 
-The first step inquires input for model controls, which will be written to *runs/init/`MODEL_NAME.tcf`*. It asks for the following parameters, where drop-down menus provide valid *Tuflow* options (where applicable):
+The first step inquires input for model controls, which will be written to *runs/init/`MODEL_NAME.tcf`*. It asks for the following MODEL CONTROL parameters, where drop-down menus provide valid *Tuflow* options (where applicable):
 
-| Parameter                      | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `License type`                 | *Tuflow* provides different licensing options that enable or restrict the modelling performance. ***Hy2Opt* enables the definition of subsequent parameters as a function of the select license.**                                                                                                                                                                                                                                                                                          |
-| `Model Precision`              | Recommended: `Single`. `Double` precision slows down the calculation on GPUs and should only be used for the `Classic` scheme with elevations of more than 100-1000m or with direct rainfall models (mass errors may otherwise occur here). *Hy2Opt* defines model precision via definition of the relevant *Tuflow* executable in the batchfile.                                                                                                                                           |
-| <sup>\*</sup>`Solution Scheme` | The `Classic` scheme is a (relatively) slow implicit solver that runs on one single core. The `HPC` scheme uses multiple CPUs (or GPU hardware) with an explicit solver for high speed calculation.                                                                                                                                                                                                                                                                                         |
-| `Units`                        | Select a unit system (must comply with the units of the later on required topography / DEM raster).                                                                                                                                                                                                                                                                                                                                                                                         |
-| <sup>\*</sup>`Hardware`        | If your computer has a **powerfull** GPU, this can increase the computing speed many times over. Otherwise (non or non-powerfull GPU), select `CPU`.                                                                                                                                                                                                                                                                                                                                        |
-| `Viscosity Formulation`        | Preferably use `SMAGORINSKY`. Use `CONSTANT` only when the cell size is much larger than the (expected) flow depth or when other turbulence sources govern (e.g., bed roughness).                                                                                                                                                                                                                                                                                                           |
-| `Viscosity Coefficients`       | *C<sub>s</sub>* is the dimensionless [*Smagorinsky* coefficient][smag] and has a default value of 0.5. *C<sub>c</sub>* is the constant *Smagorinsky* coefficient and has a default value of 0.05 m²/s (US costomary: use 0.5382 ft²/s). Lower values tend to increase stability, higher values increase calculation speed.  If `Viscosity Formulation`==`CONSTANT` is used, *Hy2Opt* automatically uses the `Constant Viscosity Coefficient` only, where the recommended value is 1.0 m²/s. |
-| `Cell Size`                    | Min. the resolution of the input DEM raster. Coarse resolution results in higher calculation speed an less accuracy. The default is 1.0m.                                                                                                                                                                                                                                                                                                                                                   |
+| Parameter                    | Description |
+|------------------------------|-------------|
+| <sup>\*</sup>`Hardware`      | If your computer has a **powerfull** GPU, this can increase the computing speed many times over. Otherwise (non or non-powerfull GPU), select `CPU`.|
+| `License`                    | *Tuflow* provides different licensing options that enable or restrict the modelling performance. ***Hy2Opt* enables the definition of subsequent parameters as a function of the select license.**  |
+| `Model Precision`              | Recommended: `Single`. `Double` precision slows down the calculation on GPUs and should only be used for the `Classic` scheme with elevations of more than 100-1000m or with direct rainfall models (mass errors may otherwise occur here). *Hy2Opt* defines model precision via definition of the relevant *Tuflow* executable in the batchfile.|
+| <sup>\*</sup>`Solution Scheme` | The `Classic` scheme is a (relatively) slow implicit solver that runs on one single core. The `HPC` scheme uses multiple CPUs (or GPU hardware) with an explicit solver for high speed calculation.|
+| `Units`                        | Select a unit system (must comply with the units of the later on required topography / DEM raster). |
+### Model stability parameters<a name="msp"></a>
+
+Define the following STABILITY PARAMETERS:
+
+| Parameter                     | Description  |
+|-------------------------------|--------------|
+| `Cell Size`                   | Min. the resolution of the input DEM raster. Coarse resolution results in higher calculation speed an less accuracy. The default is 1.0m.  |
+| `Cell Wet/Dry Depth`           | Default: 0.002m. Define according to estimated flood magnitude depth. Should be smaller for direct rainfall approaches (shallow sheet flow).  |
+| `Initial water level (Set IWL)`    | Default: `"AUTO"`. Should correspond to the target initial flow water level at the model outlet (downstream). *Hy2Opt* will override this value with a GIS file when model optimization is performed.    |
 | `Timestep`                     | The timestep (in seconds) depends on the cell size and should be max. 1/2 to 1/5 of the cell size in meters. The timestep must be small enough to satisfy the [Courant-Friedrichs-Lewy condition][cfl] for numerical stability. The `HPC` solutions scheme uses adaptive timesteps and the here defined value only repreents the initital condition. *Hy2Opt* comes with a calculator (`Estimate` button) for estimating the adequate timestep.                                             |
-| `Cell Wet/Dry Depth`           | Default: 0.002m. Define according to estimated flood magnitude depth. Should be smaller for direct rainfall approaches (shallow sheet flow).                                                                                                                                                                                                                                                                                                                                                |
-| `Initial water level (IWL)`    | Default: `"AUTO"`. Should correspond to the target initial flow water level at the model outlet (downstream). *Hy2Opt* will override this value with a GIS file when model optimization is performed.                                                                                                                                                                                                                                                                                       |
+| `Viscosity Formulation`        | Preferably use `SMAGORINSKY`. Use `CONSTANT` only when the cell size is much larger than the (expected) flow depth or when other turbulence sources govern (e.g., bed roughness).  |
+| `Smagorinsky Viscosity Coefficient`       | The dimensionless [*Smagorinsky* coefficient][smag] *C<sub>s</sub>* has a default value of 0.5. Lower values tend to increase stability, higher values increase calculation speed. If `Viscosity Formulation`==`CONSTANT` is used, *Hy2Opt* ignores this field. |
+| `Constant Viscosity Coefficient`       | The constant coefficient *C<sub>c</sub>* has a default value of 0.05 m²/s (US costomary: use 0.5382 ft²/s). Lower values tend to increase stability, higher values increase calculation speed.  If `Viscosity Formulation`==`CONSTANT` is used, *Hy2Opt* automatically uses the `Constant Viscosity Coefficient` only, where the recommended value is 1.0 m²/s (reasonable range: 0.2 m²/s to 1.0 m²/s). |
+
 
 <sup>\*</sup>`PARAMETER`s marked with an asterisk are only available with a full *Tuflow* license.
 
@@ -121,43 +150,48 @@ The first step inquires input for model controls, which will be written to *runs
 
 The next step inquires output parameters:
 
-| Parameter               | Description                                                                                                                                                                                                           |
-| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Map Output Format`     | Multiple selection of map output formats is possible (hold the `CTRL` key and click multiple entries).                                                                                                                |
-| `Map Output Data Types` | Select a map output format and define output data types. Multiple selection of map output data types is possible (hold the `CTRL` key and click multiple entries). [See definitions of Map Output Data Types](#modt). |
-| `Map Output Interval`   | Default: 360 seconds. Enter an integer number to replace the default value.                                                                                                                                           |
+| Parameter               | Description     |
+|-------------------------|-----------------|
+| `Map Output Format`     | Multiple selection of map output formats is possible. |
+| `Map Output Data Types` | Select a map output format and define output data types. Multiple selection of map output data types is possible. [See definitions of Map Output Data Types](#modt). |
+| `Map Output Interval`   | Default: 360 seconds. Enter an integer number to replace the default value. |
 
-### Geometry<a name="geo"></a>
+**SAVE THE MODEL**.
 
-The next step inquires geometry and geographic parameters, as well as geofiles, which will be written to the *model/`MODEL_NAME.tgc`* files.
+## Geometry<a name="geo"></a>
+***
+The next step inquires geometry and geographic parameters, as well as geofiles, which will be written to the *model/`MODEL_NAME.tgc`* files. Provide the following geospatial file definitions according to the before prepared files ([see above descriptions](#pgd)).
 
-| Parameter           | Default                              | Description                                                                                                                                                                                                                                           |
-| ------------------- | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Read GIS Location` | `model\grid\2d_loc_MODEL_L.shp`      | *Shapefile (`shp`)* defining the location where *Tuflow* creates the boundary.                                                                                                                                                                        |
-| `Grid Size`         | `(X,Y)` - `tuple`                    | Dimensions of the grid (`X`-rows and `Y`-columns in m or ft); must not be an exact multiple of `Cell Size`. *Hy2Opt* provides a built-in function for calculating the grid size from the extents of the `Read GIS Location` layer.                    |
-| `Set Zpts`          | `3000` (`Int` in m)                  | Default definition of *Zpts* (Section 6.2 in the [*Tuflow* manual][tfman]). The relevant points are overwritten with the next parameter (`Read GRID Zpts`). A high value ensures that gaps in the `asc` or `flt` DEM raster can easily be identified. |
-| `Read GRID Zpts`    | `model\grid\asc` or `flt` DEM raster | The preferred method to define Z-point elevations in *Hy2Opt* (alternatives: `Read GRID <option>` as defined in the [*Tuflow* manual][tfman] in Appendix C).                                                                                          |
-| `Set Code`          | `0` (`Int` as Boolean)               | Defines that the DEM is trimmed to the model boundary. Note: `Set Code` must be defined after `Read GRID Zpts`.                                                                                                                                       |
-| `Read GIS Code`     | `model\gis\2d_code_MODEL_R.shp`      | Select a polygon shapefile that indicates the initial expected wetted area within a polygon. Active (wetted) polygons must have a code-value=1 and may be oriented at aerial imagery.                                                                 |
-| `Set Mat`           | `1` (`Int` of default material)      | Define the default material ID for all cells that are not defined in the materials polygon (see `Read GIS Mat`).                                                                                                                                      |
-| `Read GIS Mat`      | `model\gis\2d_mat_MODEL_R.shp`       | Polygon shapefile defining material IDs. Parameter can be ignored for using the default material (see `Set Mat`) everywhere.                                                                                                                          |
+| Parameter  | Target  | Description  |
+|------------|---------|--------------|
+| `Read GIS Location` | `model\grid\2d_loc_MODEL_L.shp`      | *Shapefile (`shp`)* defining the location where *Tuflow* creates the boundary. |
+| `Grid Size`         | `X, Y`   | Dimensions of the grid (`X`-rows and `Y`-columns in m or ft); must not be an exact multiple of `Cell Size`. *Hy2Opt* provides a built-in function for calculating the grid size from the extents of the `Read GIS Location` layer. The internal storage variable has the shape `tuple(X, Y)`. |
+| `Set Zpts`          | `3000` (`Int` in m or ft) | Default definition of *Zpts* (Section 6.2 in the [*Tuflow* manual][tfman]). The relevant points are overwritten with the next parameter (`Read GRID Zpts`). A high value ensures that gaps in the `asc` or `flt` DEM raster can easily be identified. |
+| `Read GRID Zpts`    | `model\grid\asc` or `flt` DEM raster | The preferred method to define Z-point elevations in *Hy2Opt* (alternatives: `Read GRID <option>` as defined in the [*Tuflow* manual][tfman] in Appendix C). |
+| `Set Code`          | `0` (`Int` as Boolean)               | Defines that the DEM is trimmed to the model boundary. Note: `Set Code` must be defined after `Read GRID Zpts`.  If you are unsure what value to use, keep the default (`0`).|
+| `Read GIS Code`     | `model\gis\2d_code_MODEL_R.shp`      | Select a polygon shapefile that indicates the initial expected wetted area within a polygon. Active (wetted) polygons must have a code-value=1 and may be oriented at aerial imagery.  |
+| `Set Mat`           | `1` (`Int` of default material)      | Define the default material ID for all cells that are not defined in the materials polygon (see `Read GIS Mat`).   |
+| `Read GIS Mat`      | `model\gis\2d_mat_MODEL_R.shp`       | Polygon shapefile defining material IDs. Parameter can be ignored for using the default material (see `Set Mat`) everywhere.   |
 
 The following geometry parameters will be written to the *model/`MODEL_NAME.tbc`* file. 
 
-| Parameter     | Default                          | Description                                                                                                                                                                                                                                                                |
-| ------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Read GIS BC` | `model\gis\2d_bc_MODEL_HT_L.shp` | *Shapefile (`shp`)* defining the downstream flow exit line (`L`) that will be defined with a water surface elevation (`H`) over time (`T`).                                                                                                                                |
+| Parameter | Default  | Description  |
+|-----------|----------|--------------|
+| `Read GIS BC` | `model\gis\2d_bc_MODEL_HT_L.shp` | *Shapefile (`shp`)* defining the downstream flow exit line (`L`) that will be defined with a water surface elevation (`H`) over time (`T`).     |
 | `Read GIS SA` | `model\gis\2d_sa_MODEL_QT_R.shp` | *Shapefile (`shp`)* defining the *Source Area* (`sa`) in terms of a polygon that delineates the upstream inflow region (`R`), where a discharge (`Q`) will be defined over time (`T`). Use a polygon rather than a line to enable the GPU solver (cannot run with a line). |
 
 Note that *Hy2Opt* writes the `Cell Size` parameter in the [`.tcf`](#mcp) file.
 
-### Boundary conditions and Events<a name="bce"></a>
+## Boundary conditions and Events<a name="bce"></a>
 
 ***
 
 ## Model optimization<a name="optimization"></a>
+***
 
-text
+- Align Rasters (adapt provided input DEM to *Tuflow* computation grid).
+- Coarse-resolution pre-runs generate `IWL` files and generate restart-conditions for high-resolution runs (function may not be available demo-license mode).
+
 
 ## Run Tuflow models<a name="run"></a>
 

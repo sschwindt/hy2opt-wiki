@@ -145,7 +145,7 @@ The execution of *Hy2Opt* requires the following packages:
 - `glob`
 - `logging`
 - `os`
-- `osgeo`
+- `osgeo` (module: `osgeo.ogr`)
 - `shutil`
 - `subprocess` (not mandatory, also works without this package)
 - `tkinter`
