@@ -116,9 +116,10 @@ The model must not only know where the water comes from (see polygon names defin
 
 The first tab invites for defining a model name and model control parameters. Note: **This is the only place where model names can be defined.**
 
-![tfmsw](https://raw.githubusercontent.com/sschwindt/hy2opt-wiki/master/assets/images/msw.png)
 
 ### Model control parameters<a name="mcp"></a>
+
+![tfmsw](https://raw.githubusercontent.com/sschwindt/hy2opt-wiki/master/assets/images/mswc.png)
 
 The first step inquires input for model controls, which will be written to *runs/init/`MODEL_NAME.tcf`*. It asks for the following MODEL CONTROL parameters, where drop-down menus provide valid *Tuflow* options (where applicable):
 
@@ -129,6 +130,7 @@ The first step inquires input for model controls, which will be written to *runs
 | `Model Precision`              | Recommended: `Single`. `Double` precision slows down the calculation on GPUs and should only be used for the `Classic` scheme with elevations of more than 100-1000m or with direct rainfall models (mass errors may otherwise occur here). *Hy2Opt* defines model precision via definition of the relevant *Tuflow* executable in the batchfile.|
 | <sup>\*</sup>`Solution Scheme` | The `Classic` scheme is a (relatively) slow implicit solver that runs on one single core. The `HPC` scheme uses multiple CPUs (or GPU hardware) with an explicit solver for high speed calculation.|
 | `Units`                        | Select a unit system (must comply with the units of the later on required topography / DEM raster). |
+
 ### Model stability parameters<a name="msp"></a>
 
 Define the following STABILITY PARAMETERS:
@@ -160,6 +162,9 @@ The next step inquires output parameters:
 
 ## Geometry<a name="geo"></a>
 ***
+
+![tfmsw](https://raw.githubusercontent.com/sschwindt/hy2opt-wiki/master/assets/images/mswg.png)
+
 The next step inquires geometry and geographic parameters, as well as geofiles, which will be written to the *model/`MODEL_NAME.tgc`* files. Provide the following geospatial file definitions according to the before prepared files ([see above descriptions](#pgd)).
 
 | Parameter  | Target  | Description  |
@@ -183,8 +188,9 @@ The following geometry parameters will be written to the *model/`MODEL_NAME.tbc`
 Note that *Hy2Opt* writes the `Cell Size` parameter in the [`.tcf`](#mcp) file.
 
 ## Boundary conditions and Events<a name="bce"></a>
-
 ***
+![tfmsw](https://raw.githubusercontent.com/sschwindt/hy2opt-wiki/master/assets/images/mswb.png)
+
 
 ## Model optimization<a name="optimization"></a>
 ***

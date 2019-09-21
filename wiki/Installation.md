@@ -111,7 +111,7 @@ The main directory (`/hy2opt/`) contains the program launcher named `Start_Hy2Op
 
 - **master.py** is the main *Python* file to start *Hy2Opt*.
 
-- **sub\_tabs.py** contains the template for model tabs.
+- **tabs.py** contains the template for model tabs.
 
 - **Start_Hy2Opt.bat** launches `master.py`.
 
@@ -149,6 +149,8 @@ The execution of *Hy2Opt* requires the following packages:
 - `shutil`
 - `subprocess` (not mandatory, also works without this package)
 - `tkinter`
+
+In addition, *Hy2Opt* uses [Damien Farrell](http://dmnfarrell.github.io/)'s [tkintertable](https://github.com/dmnfarrell/tkintertable) package (GNU General Public License v3 *GPLv3*) as built-in pypool function.
 
 Any folder beginning with a "." for example `.cache` must not be modified or assessed by any other program, in particular during the execution of package methods. At the end of execution, the applied modules have created their output folders, which are indicated in the command prompt.
 
